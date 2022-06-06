@@ -2,7 +2,7 @@
 
 ### 技术以及后续维护提供自：https://t.me/VPS_spiders
 
-### 面板提供自：https://t.me/nezhamonitoring
+### NEZHA探针面板API提供自：https://t.me/nezhamonitoring
 
 安装：
 
