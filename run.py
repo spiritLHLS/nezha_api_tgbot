@@ -172,8 +172,7 @@ def start(update: Update, context: CallbackContext) -> None:
         check_is_member_of_channel(update)
         keyboard = [
             [
-                InlineKeyboardButton("开始查询", callback_data='1'),
-                InlineKeyboardButton("绑定面板", callback_data='3'),
+                InlineKeyboardButton("开始查询", callback_data='1')
             ],
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -311,42 +310,6 @@ def tag(update: Update, context: CallbackContext) -> None:
     except:
         update.effective_message.reply_text("输入错误")
 
-
-def add(update: Update, context: CallbackContext) -> None:
-    try:
-        url = context.args[0]
-        token = context.args[1]
-        userid = update.effective_user.id
-        with open("users.txt", "r", encoding='utf-8') as fp:
-            tp = fp.read()
-        if str(userid) not in tp:
-            try:
-                headers = {
-                    "Authorization": token
-                }
-                requests.get(f"{url}api/v1/server/list", headers=headers)
-                with open("users.txt", "a", encoding='utf-8') as fp:
-                    fp.write(f"\n{str(userid)} {url} {token}")
-                    update.effective_message.reply_text("用户绑定成功，输入 /start 返回主菜单")
-            except Exception as e:
-                print(e)
-                pass
-        else:
-            update.effective_message.reply_text("用户已绑定，输入 /start 返回主菜单")
-    except:
-        update.effective_message.reply_text(text="请按照格式输入绑定面板\n/add 面板链接 token\n绑定，注意链接带http或https前缀，并以/结尾")
-
-def delete(update: Update, context: CallbackContext) -> None:
-    with open("users.txt", "r", encoding='utf-8') as fp:
-        tp = fp.read().split("\n")
-    cp = []
-    for i in tp:
-        if str(update.effective_user.id) not in i:
-            cp.append(i+"\n")
-    with open("users.txt", "w", encoding='utf-8') as fp:
-        fp.writelines(cp)
-    update.effective_message.reply_text("已删除绑定，输入 /start 返回主菜单")
-
 ############################################################################################# 主体
 
 def main() -> None:
@@ -355,8 +318,6 @@ def main() -> None:
     updater.dispatcher.add_handler(CallbackQueryHandler(button, run_async=True))
     updater.dispatcher.add_handler(CommandHandler('tag', tag, run_async=True))
     updater.dispatcher.add_handler(CommandHandler('check', check, run_async=True))
-    updater.dispatcher.add_handler(CommandHandler('add', add, run_async=True))
-    updater.dispatcher.add_handler(CommandHandler('delete', delete, run_async=True))
     updater.start_polling(read_latency=1)
     updater.idle()
 
