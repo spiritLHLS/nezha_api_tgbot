@@ -161,13 +161,7 @@ def start(update: Update, context: CallbackContext) -> None:
         reply_markup = InlineKeyboardMarkup(keyboard)
         query.edit_message_text(
             f'版本：{version}\n你好，{update.effective_user.first_name}\n'
-            f'本机器人提供对接nezha探针面板的API提供TG查询功能\n'
-            f'查询前请先绑定面板链接和API的token\n'
-            f'重要声明：\n'
-            f'本机器人使用您的面板API默认获取您服务器的信息\n'
-            f'其中包含您的服务器IP(但不包含密码)\n'
-            f'如需使用，默认同意本机器人进行上述操作\n'
-            f'敏感信息本机器人保证不泄露，自行承担风险', reply_markup=reply_markup)
+            f'本机器人提供对接nezha探针面板的API提供TG查询功能\n', reply_markup=reply_markup)
     except:
         check_is_member_of_channel(update)
         keyboard = [
@@ -178,13 +172,7 @@ def start(update: Update, context: CallbackContext) -> None:
         reply_markup = InlineKeyboardMarkup(keyboard)
         update.effective_message.reply_text(
             f'版本：{version}\n你好，{update.effective_user.first_name}\n'
-            f'本机器人提供对接nezha探针面板的API提供TG查询功能\n'
-            f'查询前请先绑定面板链接和API的token\n'
-            f'重要声明：\n'
-            f'本机器人使用您的面板API默认获取您服务器的信息\n'
-            f'其中包含您的服务器IP(但不包含密码)\n'
-            f'如需使用，默认同意本机器人进行上述操作\n'
-            f'敏感信息本机器人保证不泄露，自行承担风险', reply_markup=reply_markup)
+            f'本机器人提供对接nezha探针面板的API提供TG查询功能\n', reply_markup=reply_markup)
 
 
 
