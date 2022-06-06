@@ -11,7 +11,7 @@ python3 install requests
 python3 install python-telegram-bot --upgrade
 ```
 
-run中填好配置
+run.py中按照注释填好配置保存
 
 然后在screen中挂起执行
 
