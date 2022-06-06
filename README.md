@@ -19,6 +19,6 @@ run.py中按照注释填好配置保存
 python3 run.py
 ```
 
-### 多用户的不开源，作者自建的BOT在这
+### 多用户的不开源，作者自建的多用户的BOT在这
 
 https://t.me/Server_Status_of_nezha_bot
