@@ -90,27 +90,21 @@ def checkid(id):
     return status_msg
     
 def start(update: Update, context: CallbackContext) -> None:
-    try:
-        query = context.args[0]
-        keyboard = [
-            [
-                InlineKeyboardButton("开始查询", callback_data='1'),
-            ],
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        query.edit_message_text(
-            f'版本：{version}\n你好，{update.effective_user.first_name}\n'
-            f'本机器人提供对接nezha探针面板的API提供TG查询功能\n', reply_markup=reply_markup)
-    except:
-        keyboard = [
+    keyboard = [
             [
                 InlineKeyboardButton("开始查询", callback_data='1')
             ],
         ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    try:
+        query = context.args[0]
+        query.edit_message_text(
+            f'版本：{version}\n你好，{update.effective_user.first_name}\n'
+            f'{wellcome_msg}\n', reply_markup=reply_markup)
+    except:
         update.effective_message.reply_text(
             f'版本：{version}\n你好，{update.effective_user.first_name}\n'
-            f'本机器人提供对接nezha探针面板的API提供TG查询功能\n', reply_markup=reply_markup)
+            f'{wellcome_msg}\n', reply_markup=reply_markup)
 
 def check(update: Update, context: CallbackContext) -> None:
     try:

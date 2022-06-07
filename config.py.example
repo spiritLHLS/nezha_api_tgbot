@@ -8,4 +8,6 @@ link_of_nezha = ""
 # 面板token
 token_of_nezha = ""
 # 日志Level
-log_level = logging.INFO
+log_level = logging.WARN
+# 欢迎提示语
+wellcome_msg = "本机器人提供对接nezha探针面板的API提供TG查询功能"
