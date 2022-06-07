@@ -10,7 +10,7 @@ from datetime import timezone
 # BOT API TOKEN
 TOKEN = 'BOTTOKEN'
 # 版本
-version = "05.31"
+version = "2022.06.07"
 # 线程
 TGWORKERS = 20
 # 面板API
