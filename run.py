@@ -1,4 +1,5 @@
 # by spiritlhls
+import socket
 import requests
 from telegram import Bot
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
@@ -6,17 +7,12 @@ from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, Callback
 from datetime import datetime, timedelta
 from datetime import timedelta
 from datetime import timezone
+import logging
+import humanize
+from config import *
 
-# BOT API TOKEN
-TOKEN = 'BOTTOKEN'
 # 版本
-version = "2022.06.07"
-# 线程
-TGWORKERS = 20
-# 面板API
-link_of_nezha = ""
-# 面板token
-token_of_nezha = ""
+version = "2022.06.08"
 
 SHA_TZ = timezone(
     timedelta(hours=8),
@@ -28,117 +24,71 @@ utc_now = datetime.utcnow().replace(tzinfo=timezone.utc)
 # 北京时间
 beijing_now = utc_now.astimezone(SHA_TZ)
 
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s -%(module)s: %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S', level=log_level)
 
-def get_ori():
-    return link_of_nezha, token_of_nezha
+socket.setdefaulttimeout(30)
+s = requests.Session()
+s.mount('https://', requests.adapters.HTTPAdapter(pool_connections=10, pool_maxsize=TGWORKERS * 2))
+s.mount('http://', requests.adapters.HTTPAdapter(pool_connections=10, pool_maxsize=TGWORKERS * 2))
 
-def get_tag(tag, link, token):
-    headers = {
-        "Authorization": token
-    }
-    datas = requests.get(f"{link}api/v1/server/details?tag={tag}", headers=headers).json()["result"]
+headers = {
+    "Authorization": token_of_nezha
+}
+s.headers.update(headers)
+
+if link_of_nezha.endswith('/'):
+    link = link_of_nezha
+else:
+    link = link_of_nezha + '/'
+
+def get_tag(tag):
+    # tag为空，即查询默认时，由于面板BUG会显示所有鸡，等待面板修复
+    datas = s.get(f"{link}api/v1/server/details?tag={tag}").json()["result"]
     names = []
     for i in datas:
         names.append(i['name'])
     return datas, names
 
-def get_list(link, token):
-    headers = {
-        "Authorization": token
-    }
-    datas = requests.get(f"{link}api/v1/server/list", headers=headers).json()["result"]
+def get_list():
+    datas = s.get(f"{link}api/v1/server/list").json()["result"]
     names = []
     for i in datas:
         names.append(i['name'])
     return datas, names
 
-def checkid(id, link, token):
-    headers = {
-        "Authorization": token
-    }
+def checkid(id):
     # datas, names = get_list()
-    data = requests.get(f"{link}api/v1/server/details?id={id}", headers=headers)
+    data = s.get(f"{link}api/v1/server/details?id={id}")
     detail = data.json()['result'][0]
     ### toal
-    try:
-        MemTotal = format(detail['host']['MemTotal'] / (1024 * 1024 * 1024), '0.2f')
-    except:
-        MemTotal = "0"
-    try:
-        DiskTotal = format(detail['host']['DiskTotal'] / (1024 * 1024 * 1024), '0.2f')
-    except:
-        DiskTotal = "0"
-    try:
-        SwapTotal = format(detail['host']['SwapTotal'] / (1024 * 1024 * 1024), '0.2f')
-    except:
-        SwapTotal = "0"
-    ### use
-    try:
-        CPU = format(detail['status']['CPU'], '0.2f')
-    except:
-        CPU = "0"
-    try:
-        MemUsed = format(detail['status']['MemUsed'] / (1024 * 1024 * 1024), '0.2f')
-    except:
-        MemUsed = "0"
-    try:
-        Mempercent = format((detail['status']['MemUsed'] / detail['host']['MemTotal'])*100, '0.2f')
-    except:
-        Mempercent = 0
-    try:
-        SwapUsed = format(detail['status']['SwapUsed'] / (1024 * 1024 * 1024), '0.2f')
-    except:
-        SwapUsed = "0"
-    try:
-        Swapercent = format((detail['status']['SwapUsed'] / detail['host']['SwapTotal'])*100, '0.2f')
-    except:
-        Swapercent = "0"
-    try:
-        DiskUsed = format(detail['status']['DiskUsed'] / (1024 * 1024 * 1024), '0.2f')
-    except:
-        DiskUsed = "0"
-    try:
-        Diskpercent = format((detail['status']['DiskUsed'] / detail['host']['DiskTotal'])*100, '0.2f')
-    except:
-        Diskpercent = "0"
-    try:
-        NetInTransfer = format(detail['status']['NetInTransfer'] / (1024 * 1024 * 1024), '0.2f')
-    except:
-        NetInTransfer = "0"
-    try:
-        NetOutTransfer = format(detail['status']['NetOutTransfer'] / (1024 * 1024 * 1024), '0.2f')
-    except:
-        NetOutTransfer = "0"
-    try:
-        NetInSpeed = format(detail['status']['NetInSpeed'] / (1024 * 1024), '0.2f')
-    except:
-        NetInSpeed = "0"
-    try:
-        NetOutSpeed = format(detail['status']['NetOutSpeed'] / (1024 * 1024), '0.2f')
-    except:
-        NetOutSpeed = "0"
-    try:
-        Load1 = format(detail['status']['Load1'], '0.2f')
-    except:
-        Load1 = "0"
-    try:
-        Load5 = format(detail['status']['Load5'], '0.2f')
-    except:
-        Load5 = "0"
-    try:
-        Load15 = format(detail['status']['Load15'], '0.2f')
-    except:
-        Load15 = "0"
-    m1 = f"{detail['name']}\n" \
-         f"CPU {CPU}% [{detail['host']['Arch']}]\n" \
-         f"负载 {Load1} {Load5} {Load15}\n" \
-         f"内存 {Mempercent}% [{MemUsed} GB/{MemTotal} GB]\n" \
-         f"交换 {Swapercent}% [{SwapUsed}/{SwapTotal} GB]\n" \
-         f"硬盘 {Diskpercent}% [{DiskUsed}/{DiskTotal} GB]\n" \
-         f"网速 ↓{NetInSpeed} MB/s ↑{NetOutSpeed} MB/s\n" \
-         f"流量 ↓{NetInTransfer} GB ↑{NetOutTransfer} GB\n"
-    return m1
-
+    MemTotal = humanize.naturalsize(detail['host']['MemTotal'], gnu=True)
+    DiskTotal = humanize.naturalsize(detail['host']['DiskTotal'], gnu=True)
+    SwapTotal = humanize.naturalsize(detail['host']['SwapTotal'], gnu=True)
+    CPU = f"{detail['status']['CPU']:.2f}"
+    MemUsed = humanize.naturalsize(detail['status']['MemUsed'], gnu=True)
+    Mempercent = f"{(detail['status']['MemUsed'] / detail['host']['MemTotal'])*100:.2f}" if detail['host']['MemTotal'] !=0 else "0"
+    SwapUsed = humanize.naturalsize(detail['status']['SwapUsed'], gnu=True)
+    Swapercent = f"{(detail['status']['SwapUsed'] / detail['host']['SwapTotal'])*100:.2f}" if detail['host']['SwapTotal'] !=0 else "0"
+    DiskUsed = humanize.naturalsize(detail['status']['DiskUsed'], gnu=True)
+    Diskpercent = f"{(detail['status']['DiskUsed'] / detail['host']['DiskTotal'])*100:.2f}" if detail['host']['DiskTotal'] !=0 else "0"
+    NetInTransfer = humanize.naturalsize(detail['status']['NetInTransfer'], gnu=True)
+    NetOutTransfer = humanize.naturalsize(detail['status']['NetOutTransfer'], gnu=True)
+    NetInSpeed = humanize.naturalsize(detail['status']['NetInSpeed'], gnu=True)
+    NetOutSpeed = humanize.naturalsize(detail['status']['NetOutSpeed'], gnu=True)
+    Load1 = f"{detail['status']['Load1']:.2f}"
+    Load5 = f"{detail['status']['Load1']:.2f}"
+    Load15 = f"{detail['status']['Load1']:.2f}"
+    status_msg = f"{detail['name']}\n" \
+        f"CPU {CPU}% [{detail['host']['Arch']}]\n" \
+        f"负载 {Load1} {Load5} {Load15}\n" \
+        f"内存 {Mempercent}% [{MemUsed}/{MemTotal}]\n" \
+        f"交换 {Swapercent}% [{SwapUsed}/{SwapTotal}]\n" \
+        f"硬盘 {Diskpercent}% [{DiskUsed}/{DiskTotal}]\n" \
+        f"网速 ↓{NetInSpeed}/s ↑{NetOutSpeed}/s\n" \
+        f"流量 ↓{NetInTransfer} ↑{NetOutTransfer}\n"
+    return status_msg
+    
 def start(update: Update, context: CallbackContext) -> None:
     try:
         query = context.args[0]
@@ -162,8 +112,6 @@ def start(update: Update, context: CallbackContext) -> None:
             f'版本：{version}\n你好，{update.effective_user.first_name}\n'
             f'本机器人提供对接nezha探针面板的API提供TG查询功能\n', reply_markup=reply_markup)
 
-
-
 def check(update: Update, context: CallbackContext) -> None:
     try:
         id = context.args[0]
@@ -172,8 +120,7 @@ def check(update: Update, context: CallbackContext) -> None:
     try:
         try:
             query = context.args[1]
-            link, token = get_ori()
-            msg = checkid(id, link, token)
+            msg = checkid(id)
             keyboard = [
                 [
                     InlineKeyboardButton("刷新", callback_data=f'2|{id}'),
@@ -184,8 +131,7 @@ def check(update: Update, context: CallbackContext) -> None:
             msg = msg + "\n" + date
             query.edit_message_text(msg, reply_markup=reply_markup)
         except:
-            link, token = get_ori()
-            msg = checkid(id, link, token)
+            msg = checkid(id)
             date = (beijing_now.now() + timedelta(hours=8)).strftime('%Y-%m-%d %H:%M:%S')
             msg = msg + "\n" + date
             keyboard = [
@@ -195,17 +141,16 @@ def check(update: Update, context: CallbackContext) -> None:
             ]
             reply_markup = InlineKeyboardMarkup(keyboard)
             update.effective_message.reply_text(msg, reply_markup=reply_markup)
-    except:
+    except BaseException as e:
         update.effective_message.reply_text("未知错误")
-
+        logging.error(f"获取第{id}号信息时发生错误", exc_info=True)
 
 def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     query.answer()
     if query.data == "1":
         query.edit_message_text(text="正在获取服务器列表")
-        link, token = get_ori()
-        datas, names = get_list(link, token)
+        datas, _ = get_list()
         tags = []
         keys = []
         temp = ""
@@ -229,11 +174,12 @@ def button(update: Update, context: CallbackContext) -> None:
         msg = f"TAGID  TAGNAME\n"
         count = 0
         for i in tags:
+            if len(i) == 0:
+                i = "默认"
             msg += f"{count} {i}\n"
             count += 1
         msg = msg + "点击你要查询的tag列出服务器列表"
         query.edit_message_text(msg, reply_markup=reply_markup)
-        # update.effective_message.reply_text("输入\n/tag 你的面板tag名字前的id\n进行tag查询")
     elif query.data[0] == "2":
         context.args = [query.data[2:], query]
         check(update, context)
@@ -251,15 +197,14 @@ def tag(update: Update, context: CallbackContext) -> None:
         update.effective_message.reply_text("输入为空")
         return
     try:
-        link, token = get_ori()
-        datas, names = get_list(link, token)
+        datas, names = get_list()
         tags = []
         temp = ""
         for m in datas:
             if temp != m["tag"]:
                 tags.append(m["tag"])
                 temp = m["tag"]
-        datas, names = get_tag(tagname, link, token)
+        datas, names = get_tag(tagname)
         msg = f"ID  NAME\n"
         keys = []
         for i, j in zip(datas, names):
@@ -298,4 +243,8 @@ def main() -> None:
     updater.idle()
 
 if __name__ == '__main__':
+    print("本Bot由spiritlhl编写")
+    print("开源地址: https://github.com/spiritLHLS/nezha_api_tgbot")
+    print("欢迎关注我的Tg频道: @VPS_spiders")
+    print("Bot开始运行...")
     main()

@@ -1,0 +1,11 @@
+import logging
+# BOT API TOKEN
+TOKEN = 'BOTTOKEN'
+# 线程
+TGWORKERS = 20
+# 面板API
+link_of_nezha = ""
+# 面板token
+token_of_nezha = ""
+# 日志Level
+log_level = logging.INFO
