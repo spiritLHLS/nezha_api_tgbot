@@ -1,3 +1,4 @@
+# by spiritlhls
 import requests
 from telegram import Bot
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
@@ -138,21 +139,9 @@ def checkid(id, link, token):
          f"流量 ↓{NetInTransfer} GB ↑{NetOutTransfer} GB\n"
     return m1
 
-
-def check_is_member_of_channel(update: Update):
-    try:
-        bot = Bot(TOKEN)
-        result = bot.get_chat_member("@VPS_spiders", update.effective_user.id)
-        if result['status'] == 'left':
-            update.message.reply_text(text="服务器由频道 @VPS_spiders 提供，关注频道免除本消息提示")
-    except Exception as e:
-        print(e)
-        update.message.reply_text(text="服务器由频道 @VPS_spiders 提供，关注频道免除本消息提示")
-
 def start(update: Update, context: CallbackContext) -> None:
     try:
         query = context.args[0]
-        check_is_member_of_channel(update)
         keyboard = [
             [
                 InlineKeyboardButton("开始查询", callback_data='1'),
@@ -163,7 +152,6 @@ def start(update: Update, context: CallbackContext) -> None:
             f'版本：{version}\n你好，{update.effective_user.first_name}\n'
             f'本机器人提供对接nezha探针面板的API提供TG查询功能\n', reply_markup=reply_markup)
     except:
-        check_is_member_of_channel(update)
         keyboard = [
             [
                 InlineKeyboardButton("开始查询", callback_data='1')
