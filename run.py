@@ -118,28 +118,19 @@ def check(update: Update, context: CallbackContext) -> None:
         return
     logging.info(f"刷新ID:{id}的服务器")
     try:
+        msg = checkid(id)
+        keyboard = [
+            [
+                InlineKeyboardButton("刷新", callback_data=f'2|{id}'),
+            ],
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        date = (beijing_now.now() + timedelta(hours=8)).strftime('%Y-%m-%d %H:%M:%S')
+        msg = msg + "\n" + date
         try:
             query = context.args[1]
-            msg = checkid(id)
-            keyboard = [
-                [
-                    InlineKeyboardButton("刷新", callback_data=f'2|{id}'),
-                ],
-            ]
-            reply_markup = InlineKeyboardMarkup(keyboard)
-            date = (beijing_now.now() + timedelta(hours=8)).strftime('%Y-%m-%d %H:%M:%S')
-            msg = msg + "\n" + date
             query.edit_message_text(msg, reply_markup=reply_markup)
         except:
-            msg = checkid(id)
-            date = (beijing_now.now() + timedelta(hours=8)).strftime('%Y-%m-%d %H:%M:%S')
-            msg = msg + "\n" + date
-            keyboard = [
-                [
-                    InlineKeyboardButton("刷新", callback_data=f'2|{id}'),
-                ],
-            ]
-            reply_markup = InlineKeyboardMarkup(keyboard)
             update.effective_message.reply_text(msg, reply_markup=reply_markup)
     except BaseException as e:
         update.effective_message.reply_text("未知错误")
