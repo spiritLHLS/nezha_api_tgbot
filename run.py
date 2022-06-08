@@ -44,6 +44,7 @@ else:
 
 def get_tag(tag):
     # tag为空，即查询默认时，由于面板BUG会显示所有鸡，等待面板修复
+    logging.debug(f"查询Tag:{tag}的服务器详细信息")
     datas = s.get(f"{link}api/v1/server/details?tag={tag}").json()["result"]
     names = []
     for i in datas:
@@ -51,6 +52,7 @@ def get_tag(tag):
     return datas, names
 
 def get_list():
+    logging.debug(f"获取全部服务器列表")
     datas = s.get(f"{link}api/v1/server/list").json()["result"]
     names = []
     for i in datas:
@@ -59,8 +61,10 @@ def get_list():
 
 def checkid(id):
     # datas, names = get_list()
-    data = s.get(f"{link}api/v1/server/details?id={id}")
-    detail = data.json()['result'][0]
+    logging.debug(f"查询ID:{id}的服务器详细信息")
+    data = s.get(f"{link}api/v1/server/details?id={id}").json()
+    assert len(data['result']) == 1, f"ID:{id}号服务器不存在"
+    detail = data['result'][0]
     ### toal
     MemTotal = humanize.naturalsize(detail['host']['MemTotal'], gnu=True)
     DiskTotal = humanize.naturalsize(detail['host']['DiskTotal'], gnu=True)
@@ -111,6 +115,8 @@ def check(update: Update, context: CallbackContext) -> None:
         id = context.args[0]
     except:
         update.effective_message.reply_text("输入为空")
+        return
+    logging.info(f"刷新ID:{id}的服务器")
     try:
         try:
             query = context.args[1]
@@ -143,6 +149,7 @@ def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     query.answer()
     if query.data == "1":
+        logging.info(f"获取服务器列表")
         query.edit_message_text(text="正在获取服务器列表")
         datas, _ = get_list()
         tags = []
@@ -190,14 +197,8 @@ def tag(update: Update, context: CallbackContext) -> None:
     except:
         update.effective_message.reply_text("输入为空")
         return
+    logging.info(f"获取Tag:{tagname}的服务器列表")
     try:
-        datas, names = get_list()
-        tags = []
-        temp = ""
-        for m in datas:
-            if temp != m["tag"]:
-                tags.append(m["tag"])
-                temp = m["tag"]
         datas, names = get_tag(tagname)
         msg = f"ID  NAME\n"
         keys = []
@@ -218,11 +219,11 @@ def tag(update: Update, context: CallbackContext) -> None:
         try:
             query = context.args[1]
             query.edit_message_text(msg, reply_markup=reply_markup)
-        except Exception as e:
-            print(e)
+        except:
             update.effective_message.reply_text(msg)
             update.effective_message.reply_text("\n/check 你的服务器名字前的id\n进行服务器信息查询")
-    except:
+    except BaseException as e:
+        logging.error(f"获取Tag:{tagname}的服务器列表时发生错误", exc_info=True)
         update.effective_message.reply_text("输入错误")
 
 ############################################################################################# 主体
@@ -230,11 +231,15 @@ def tag(update: Update, context: CallbackContext) -> None:
 def main() -> None:
     updater = Updater(TOKEN, workers=TGWORKERS)
     updater.dispatcher.add_handler(CommandHandler('start', start, run_async=True))
+    updater.dispatcher.add_handler(CommandHandler('help', start, run_async=True))
     updater.dispatcher.add_handler(CallbackQueryHandler(button, run_async=True))
     updater.dispatcher.add_handler(CommandHandler('tag', tag, run_async=True))
     updater.dispatcher.add_handler(CommandHandler('check', check, run_async=True))
+    logging.debug("准备启动轮询")
     updater.start_polling(read_latency=1)
+    logging.debug("启动完成，进入阻塞状态")
     updater.idle()
+    logging.debug("结束程序")
 
 if __name__ == '__main__':
     print("本Bot由spiritlhl编写")

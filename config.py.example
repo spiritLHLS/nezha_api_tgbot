@@ -1,13 +1,15 @@
-import logging
+import logging, os
 # BOT API TOKEN
-TOKEN = 'BOTTOKEN'
+TOKEN = os.getenv("TOKEN", "BotToken_Get_From_BotFather")
 # 线程
-TGWORKERS = 20
-# 面板API
-link_of_nezha = ""
+TGWORKERS = int(os.getenv("TGWORKERS", 20))
+# 面板地址
+link_of_nezha = os.getenv("link_of_nezha", "https://ops.naibahq.com/")
 # 面板token
-token_of_nezha = ""
+token_of_nezha = os.getenv("token_of_nezha", "DashboardToken_Get_AdminPanel")
 # 日志Level
-log_level = logging.WARN
+log_level = int(os.getenv("log_level", logging.WARN))
 # 欢迎提示语
-wellcome_msg = "本机器人提供对接nezha探针面板的API提供TG查询功能"
+wellcome_msg = os.getenv("wellcome_msg", "本机器人提供对接nezha探针面板的API提供TG查询功能")
+# 与Tg服务器通信的宽限延迟
+read_latency = int(os.getenv("read_latency", 2))
