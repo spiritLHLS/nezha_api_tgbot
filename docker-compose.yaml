@@ -1,0 +1,8 @@
+version: "3.3"
+
+services:
+  nezhaapitgbot:
+    image: ghcr.io/spiritlhls/nezhaapitgbot:latest
+    restart: always
+    volumes:
+      - ./config.py:/opt/nezha_api_tgbot/config.py
