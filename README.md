@@ -54,3 +54,14 @@ vi config.py
 ```bash
 python3 run.py
 ```
+
+## 贡献者
+
+* [spiritLHLS](https://github.com/spiritLHLS)
+* [Erope](https://github.com/Erope/)
+
+## 致谢
+
+* 本项目基于[nezha项目](https://github.com/naiba/nezha)提供的API开发，也使用了部分nezha项目中的代码，在此感谢nezha项目组的全体成员
+* 本项目基于[Python](https://www.python.org/)3.9开发，使用了[humanize](https://github.com/python-humanize/humanize) [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot) [requests](https://github.com/psf/requests)，在此向所有有关的开发者表示感谢
+* 尤其感谢所有的贡献者！
