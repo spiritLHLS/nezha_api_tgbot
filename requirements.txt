@@ -1,0 +1,4 @@
+humanize==4.1.0
+python_telegram_bot==13.12
+requests==2.27.1
+telegram==0.0.1

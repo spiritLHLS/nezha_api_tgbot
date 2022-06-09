@@ -1,0 +1,41 @@
+name: Bot image
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Log in to the GHCR
+        uses: docker/login-action@master
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Set up image name
+        run: |
+          GHRC_IMAGE_NAME=$(echo "ghcr.io/${{ github.repository_owner }}/nezhaapitgbot" | tr '[:upper:]' '[:lower:]')
+          echo "::set-output name=GHRC_IMAGE_NAME::$GHRC_IMAGE_NAME"
+        id: image-name
+
+      - name: Build dasbboard image And Push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64,linux/arm,linux/386,linux/s390x
+          push: true
+          tags: |
+            ${{ steps.image-name.outputs.GHRC_IMAGE_NAME }}
