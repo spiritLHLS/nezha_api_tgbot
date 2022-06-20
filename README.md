@@ -7,13 +7,22 @@
 
 ### 环境要求
 
-* CentOS 7+ / Debian 8+ / Ubuntu 16+ 等可通过官方脚本安装Docker的系统
 * 安装好curl、sudo
+
+* CentOS 7+ / Debian 8+ / Ubuntu 16+ 等可通过官方脚本安装Docker的系统
+
+```bash
+curl -sSL get.docker.com | sh
+```
+
+通过上面的官方安装脚本安装docker完毕后，执行下面脚本一键安装
 
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/spiritLHLS/nezha_api_tgbot/main/quick.sh)
 ```
+
 安装完毕后您可使用如下命令重新打开脚本
+
 ```bash
 /opt/nezha_api_tgbot/install.sh
 ```
