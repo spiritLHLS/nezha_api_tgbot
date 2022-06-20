@@ -1,3 +1,10 @@
+# 必须以root运行脚本
+check_root(){
+  [[ $(id -u) != 0 ]] && red " The script must be run as root, you can enter sudo -i and then download and run again." && exit 1
+}
+
+check_root
+
 (command -v curl >/dev/null 2>&1 && command -v sudo >/dev/null 2>&1) || (echo "请安装好sudo和curl" && exit 1)
 
 NZ_BOT_BASE_PATH="/opt/nezha_api_tgbot"
