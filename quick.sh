@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# 必须以root运行脚本
+check_root(){
+  [[ $(id -u) != 0 ]] && red " The script must be run as root, you can enter sudo -i and then download and run again." && exit 1
+}
+
 # 判断系统，并选择相应的指令集
 check_operating_system(){
   CMD=("$(grep -i pretty_name /etc/os-release 2>/dev/null | cut -d \" -f2)"
