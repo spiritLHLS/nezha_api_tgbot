@@ -27,7 +27,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/spiritLHLS/nezha_api_tgbot/m
 /opt/nezha_api_tgbot/install.sh
 ```
 
-**如一键脚本安装失败请使用普通安装或者自行通过Docker安装**
+**如一键脚本安装失败请使用普通安装或者自行通过Docker安装(失败的一个原因大概率是docker-compose安装有问题)**
 
 ## 普通安装
 
